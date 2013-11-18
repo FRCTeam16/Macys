@@ -62,7 +62,7 @@ double OI::getScaledJoystickRadians() {
 	double scaledRadians = pi/2;
 	double scalingFactor = 1;
 	double steerAngle = pi/2;
-	double bottomScaling = 1.15;
+	double bottomScaling = 1.5;
 	double topScaling = 1.75;
 	
 	
