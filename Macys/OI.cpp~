@@ -81,46 +81,11 @@ double OI::getScaledJoystickRadians() {
 //	scalingFactor = driverJoystick->GetTwist()/2+1.5;
 	
 	scalingFactor = bottomScaling + driverJoystick->GetMagnitude()*(topScaling - bottomScaling);
-
-	if (getDriverJoystick()->GetMagnitude() < .2)
-		scaledRadians = pi/2;	
-	else
-	{
-		if(steerAngle <= pi/2)
-			scaledRadians = (-(pi/2)/pow(pow(-pi/2,2),scalingFactor/2))*pow(pow(steerAngle-pi/2,2),scalingFactor/2) + pi/2;
-		else //if(steerAngle <= pi)
-			scaledRadians = ((pi/2)/pow((pi/2),scalingFactor))*pow(steerAngle-pi/2,scalingFactor) + pi/2;
-	}
-
+	
+	if(steerAngle <= pi/2)
+		scaledRadians = (-(pi/2)/pow(pow(-pi/2,2),scalingFactor/2))*pow(pow(steerAngle-pi/2,2),scalingFactor/2) + pi/2;
+	else //if(steerAngle <= pi)
+		scaledRadians = ((pi/2)/pow((pi/2),scalingFactor))*pow(steerAngle-pi/2,scalingFactor) + pi/2;
+	
 	return scaledRadians;
-}
-double OI::getJoystickMagnitude() {
-	if(getDriverJoystick()->GetMagnitude() < .1)
-		return 0;
-	else
-		if (Robot::oi->getDriverJoystick()->GetY()<0)
-			return -getDriverJoystick()->GetMagnitude();
-		else
-			return getDriverJoystick()->GetMagnitude();
-}
-
-double OI::getJoystickTwist() {
-	if(fabs(getDriverJoystick()->GetZ()) < .1)
-			return 0;
-	else
-		return getDriverJoystick()->GetZ()/2;
-}
-
-double OI::getJoystickX() {
-	if (fabs(getDriverJoystick()->GetX()) < .1)
-		return 0;
-	else
-		return getDriverJoystick()->GetX();
-}
-
-double OI::getJoystickY() {
-	if (fabs(getDriverJoystick()->GetY()) < .1)
-		return 0;
-	else
-		return getDriverJoystick()->GetY();
 }

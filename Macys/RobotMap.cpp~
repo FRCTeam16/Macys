@@ -42,7 +42,7 @@ void RobotMap::init() {
 	driveTrainFrontLeftSteer = new Jaguar(1, 5);
 	lw->AddActuator("DriveTrain", "FrontLeftSteer", (Jaguar*) driveTrainFrontLeftSteer);
 	
-	driveTrainFrontLeft = new PIDController(1.25, 0.0, 0.0,/* F: 0.0, */ driveTrainFrontLeftPos, driveTrainFrontLeftSteer, 0.02);
+	driveTrainFrontLeft = new PIDController(1.0, 0.0, 0.0,/* F: 0.0, */ driveTrainFrontLeftPos, driveTrainFrontLeftSteer, 0.02);
 	lw->AddActuator("DriveTrain", "FrontLeft", driveTrainFrontLeft);
 	driveTrainFrontLeft->SetContinuous(true); driveTrainFrontLeft->SetAbsoluteTolerance(0.2); 
         driveTrainFrontLeft->SetInputRange(0.0, 5.0);

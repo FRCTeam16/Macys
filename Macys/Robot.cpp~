@@ -81,9 +81,11 @@ void Robot::TeleopInit() {
 	
 void Robot::TeleopPeriodic() {
 	double pi = 3.14159;
+
 //Starts updating smartdashboard variables	
 	if(Robot::oi->getDriverJoystick()->GetRawButton(7))
 		SMDB();
+
 	
 /******************************DRIVETRAIN CODE********************************/	
 	
@@ -92,15 +94,40 @@ void Robot::TeleopPeriodic() {
 		Robot::driveTrain->gyroscope->Reset();
 	prevTrigger = Robot::oi->getDriverJoystick()->GetRawButton(1);
 
-	if(Robot::oi->getDriverJoystick()->GetRawButton(1))
-	{//Crab	
-		Robot::driveTrain->Crab(Robot::oi->getJoystickTwist(),-Robot::oi->getJoystickY(),Robot::oi->getJoystickX(),true);	
+
+	
+	if(Robot::oi->getDriverJoystick()->GetRawButton(1)) //Crab if trigger pulled
+	{
+		if(Robot::oi->getDriverJoystick()->GetMagnitude() < .1) //Implements directional deadband
+		{
+			if(Robot::oi->getDriverJoystick()->GetZ() < .1 && Robot::oi->getDriverJoystick()->GetZ() > -.1) //Implements twist deadband
+			{
+				Robot::driveTrain->Crab(0,0,0,true); //No twist or movement
+			}
+			else
+			{
+				Robot::driveTrain->Crab(Robot::oi->getDriverJoystick()->GetZ()/2,0,0,true); //Only twist, no movement
+			}
+		}
+		else
+		{
+			Robot::driveTrain->Crab(Robot::oi->getDriverJoystick()->GetZ()/2,-Robot::oi->getDriverJoystick()->GetY(),Robot::oi->getDriverJoystick()->GetX(),true); //twist and movement
+		}
 	}
-	else 
-	{//Steering
-		Robot::driveTrain->Steer(Robot::oi->getScaledJoystickRadians(),Robot::oi->getJoystickMagnitude(),0.5);
+	else //Steering if trigger not pulled
+	{
+		if(Robot::oi->getDriverJoystick()->GetMagnitude()<.2) //Implements deadband
+			Robot::driveTrain->Steer(pi/2,0,.5); // steers wheels straight with no speed if within deadband
+		else
+		{
+			if(Robot::oi->getDriverJoystick()->GetY()<0) //steering, speed changes direction depending on Y value.
+					Robot::driveTrain->Steer(Robot::oi->getScaledJoystickRadians(),-Robot::oi->getDriverJoystick()->GetMagnitude(),0.5);
+				else
+					Robot::driveTrain->Steer(Robot::oi->getScaledJoystickRadians(),Robot::oi->getDriverJoystick()->GetMagnitude(),0.5);
+		}
 	}
 	
+
 /************************SHOOTER CODE********************************/	
 	
 	
@@ -112,6 +139,7 @@ void Robot::TeleopPeriodic() {
 		leftArmTimer = GetClock();
 		leftArmFlag = true;
 	}
+
 	if(!Robot::oi->getDriverJoystick()->GetRawButton(11) && fireLeftTimer + .5 < GetClock())
 	{
 		Robot::shooter->leftArm->Set(false);
@@ -132,6 +160,7 @@ void Robot::TeleopPeriodic() {
 	{
 		Robot::shooter->fireLeft->Set(false);
 	}
+
 	if(!Robot::oi->getDriverJoystick()->GetRawButton(3))
 	{
 		leftFireFlag = false;
@@ -153,6 +182,7 @@ void Robot::TeleopPeriodic() {
 		rightArmFlag = false;
 	}
 	
+
 //Fires the right shooter.  Solenoid will stay open for 1 sec after button is pressed.
 	if(Robot::oi->getDriverJoystick()->GetRawButton(4) && !rightFireFlag && rightArmTimer + 1 < GetClock())
 	{
@@ -178,6 +208,7 @@ void Robot::TestPeriodic() {
 	lw->Run();
 }
 void Robot::SMDB() {
+
 	//Joystick Variables
 	SmartDashboard::PutNumber("StickMagnitude",Robot::oi->getDriverJoystick()->GetMagnitude());
 	SmartDashboard::PutNumber("StickDirection",Robot::oi->getDriverJoystick()->GetDirectionRadians());
@@ -186,11 +217,13 @@ void Robot::SMDB() {
 	SmartDashboard::PutNumber("GyroAngle", Robot::driveTrain->gyroscope->GetAngle());
 	SmartDashboard::PutNumber("ScaledRadians",Robot::oi->getScaledJoystickRadians());
 	SmartDashboard::PutNumber("ScalingFactor",Robot::oi->getDriverJoystick()->GetTwist()/2+1.5);
+
 	//Wheel Module Voltages
 	SmartDashboard::PutNumber("FrontLeftVol",Robot::driveTrain->frontLeftPos->GetAverageVoltage());
 	SmartDashboard::PutNumber("FrontRightVol",Robot::driveTrain->frontRightPos->GetAverageVoltage());
 	SmartDashboard::PutNumber("RearLeftVol",Robot::driveTrain->rearLeftPos->GetAverageVoltage());
 	SmartDashboard::PutNumber("RearRightVol",Robot::driveTrain->rearRightPos->GetAverageVoltage());
+
 	//Wheel Module Values
 	SmartDashboard::PutNumber("FrontLeftValue",Robot::driveTrain->frontLeftPos->GetAverageValue());
 	SmartDashboard::PutNumber("FrontRightValue",Robot::driveTrain->frontRightPos->GetAverageValue());
@@ -202,6 +235,7 @@ void Robot::SMDB() {
 	SmartDashboard::PutNumber("FRError", Robot::driveTrain->frontRight->GetError());
 	SmartDashboard::PutNumber("RLError", Robot::driveTrain->rearLeft->GetError());
 	SmartDashboard::PutNumber("RRError", Robot::driveTrain->rearRight->GetError());
+
 	//Wheel Module Setpoints
 	SmartDashboard::PutNumber("FLSetPoint", Robot::driveTrain->frontLeft->GetSetpoint());
 	SmartDashboard::PutNumber("FRSetPoint", Robot::driveTrain->frontRight->GetSetpoint());
